@@ -224,11 +224,6 @@ const PRODUCTS = {
       id: 0,
       name: "Kit Gummy® Hair + Night + ACV",
       image: "/kit-trio-clean.png",
-      kitImages: [
-        "https://www.gummy.com.br/cdn/shop/files/3_Hair_Tutti-Frutti_3709fbaa-95ae-4e00-bbe1-e098d388a41b.png?v=1756309538&width=400",
-        "https://www.gummy.com.br/cdn/shop/files/3_acv.png?v=1768412998&width=400",
-        "https://www.gummy.com.br/cdn/shop/files/3_night.png?v=1768412856&width=400",
-      ],
       originalPrice: 447.00,
       currentPrice: 129.90,
       installments: "6x R$ 21,65",
@@ -490,11 +485,6 @@ const BEST_SELLERS_TABS = {
       id: 100,
       name: "Kit Gummy® Hair + Night + ACV",
       image: "/kit-trio-clean.png",
-      kitImages: [
-        "https://www.gummy.com.br/cdn/shop/files/3_Hair_Tutti-Frutti_3709fbaa-95ae-4e00-bbe1-e098d388a41b.png?v=1756309538&width=400",
-        "https://www.gummy.com.br/cdn/shop/files/3_acv.png?v=1768412998&width=400",
-        "https://www.gummy.com.br/cdn/shop/files/3_night.png?v=1768412856&width=400",
-      ],
       originalPrice: 447.00,
       currentPrice: 129.90,
       installments: "6x R$ 21,65",
