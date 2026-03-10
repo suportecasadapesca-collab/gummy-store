@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import logoImg from "/logo.png";
+import { pixelInitiateCheckout, pixelPurchase } from "@/lib/pixel";
 import { ChevronRight, Lock, Tag, QrCode, ChevronDown, ChevronUp, Check, Copy, Loader2, AlertCircle } from "lucide-react";
 
 type CartItem = {
@@ -133,7 +134,12 @@ export default function Checkout() {
   useEffect(() => {
     try {
       const saved = localStorage.getItem("gummy_cart");
-      if (saved) setCartItems(JSON.parse(saved));
+      if (saved) {
+        const items: CartItem[] = JSON.parse(saved);
+        setCartItems(items);
+        const total = items.reduce((s, i) => s + i.currentPrice * i.quantity, 0);
+        pixelInitiateCheckout({ value: total, num_items: items.reduce((s, i) => s + i.quantity, 0) });
+      }
     } catch {
       setCartItems([]);
     }
@@ -150,6 +156,7 @@ export default function Checkout() {
         if (data.status) setPixStatus(data.status);
         if (PAID_STATUSES.includes(data.status)) {
           clearInterval(pollRef.current!);
+          pixelPurchase({ value: cartItems.reduce((s, i) => s + i.currentPrice * i.quantity, 0) * 0.95 });
           setTimeout(() => {
             setOrderPlaced(true);
             localStorage.removeItem("gummy_cart");

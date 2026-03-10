@@ -1,6 +1,7 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useLocation } from "wouter";
 import logoImg from "/logo.png";
+import { pixelViewContent, pixelAddToCart } from "@/lib/pixel";
 import { Search, Bell, User, Heart, ShoppingCart, ChevronRight, ChevronLeft, Star, Truck, Shield, Award, Instagram, Menu, X, Play, Minus, Plus, Tag, MapPin, Lock } from "lucide-react";
 
 type CartItem = {
@@ -975,7 +976,12 @@ export default function Home() {
 
   const cartCount = cartItems.reduce((s, i) => s + i.quantity, 0);
 
+  useEffect(() => {
+    pixelViewContent({ content_name: "Gummy Store - Home", value: 129.90 });
+  }, []);
+
   const addToCart = (item: Omit<CartItem, "quantity">) => {
+    pixelAddToCart({ content_name: item.name, value: item.currentPrice });
     setCartItems((prev) => {
       const existing = prev.find((i) => i.id === item.id);
       if (existing) {
