@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import logoImg from "/logo.png";
-import { pixelInitiateCheckout, pixelPurchase } from "@/lib/pixel";
+import { pixelInitiateCheckout, pixelPurchase, pixelCompleteRegistration } from "@/lib/pixel";
 import { getUtmParams } from "@/lib/utmify";
 import { ChevronRight, Lock, Tag, QrCode, ChevronDown, ChevronUp, Check, Copy, Loader2, AlertCircle } from "lucide-react";
 
@@ -559,7 +559,7 @@ export default function Checkout() {
                 </a>
                 <button
                   data-testid="btn-continue-shipping"
-                  onClick={() => { if (validateStep1()) goToStep(2); }}
+                  onClick={() => { if (validateStep1()) { pixelCompleteRegistration(); goToStep(2); } }}
                   className="w-full sm:w-auto px-8 py-3 rounded-full text-white font-black text-sm hover:opacity-90 transition-opacity"
                   style={{ backgroundColor: "#E31C79" }}
                 >
