@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { createPixTransaction, getTransaction } from "./korepay";
 import { notifyUtmify, buildUtmifyPayload } from "./utmify";
+import { sendTikTokEvent } from "./tiktok";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -21,18 +22,11 @@ export async function registerRoutes(
       }
 
       const amountCents = Math.round(total * 0.95 * 100);
+      const pixValue = total * 0.95;
 
-      const items = cartItems.map((item: any) => ({
-        title: item.name,
-        quantity: item.quantity,
-        unitPrice: Math.round(item.currentPrice * 100),
-        tangible: true,
-        externalRef: String(item.id),
-      }));
-
-      const cpfClean = form.cpf.replace(/\D/g, "");
+      const cpfClean   = form.cpf.replace(/\D/g, "");
       const phoneClean = (form.phone ?? "").replace(/\D/g, "");
-      const cepClean = (form.cep ?? "").replace(/\D/g, "");
+      const cepClean   = (form.cep ?? "").replace(/\D/g, "");
 
       const address = {
         street: form.address ?? "",
@@ -47,7 +41,13 @@ export async function registerRoutes(
 
       const result = await createPixTransaction({
         amount: amountCents,
-        items,
+        items: cartItems.map((item: any) => ({
+          title: item.name,
+          quantity: item.quantity,
+          unitPrice: Math.round(item.currentPrice * 100),
+          tangible: true,
+          externalRef: String(item.id),
+        })),
         customer: {
           name: `${form.firstName} ${form.lastName ?? ""}`.trim(),
           email: form.email,
@@ -67,6 +67,8 @@ export async function registerRoutes(
       });
 
       const transactionId = result?.id ?? result?.data?.id;
+      const ip        = (req.headers["x-forwarded-for"] as string)?.split(",")[0] ?? req.ip ?? "";
+      const userAgent = req.headers["user-agent"] ?? "";
 
       // Notify UTMify — waiting_payment
       notifyUtmify(buildUtmifyPayload({
@@ -77,6 +79,22 @@ export async function registerRoutes(
         cartItems,
         utmParams: utmParams ?? {},
       }));
+
+      // TikTok Events API — PlaceAnOrder
+      sendTikTokEvent({
+        event: "PlaceAnOrder",
+        eventId: `order-${transactionId}`,
+        value: pixValue,
+        form: { email: form.email, phone: phoneClean, firstName: form.firstName, lastName: form.lastName },
+        contents: cartItems.map((item: any) => ({
+          content_id: String(item.id),
+          content_name: item.name,
+          quantity: item.quantity,
+          price: item.currentPrice,
+        })),
+        ip,
+        userAgent,
+      });
 
       return res.json({
         id: transactionId,
@@ -105,18 +123,39 @@ export async function registerRoutes(
   app.post("/api/utmify/approve", async (req: Request, res: Response) => {
     try {
       const { orderId, form, cartItems, amountCents, utmParams } = req.body;
-      await notifyUtmify(buildUtmifyPayload({
-        orderId: String(orderId),
-        status: "approved",
-        amountCents,
-        form,
-        cartItems,
-        utmParams: utmParams ?? {},
-        approvedDate: new Date().toISOString().replace("T", " ").slice(0, 19),
-      }));
+      const pixValue  = amountCents / 100;
+      const ip        = (req.headers["x-forwarded-for"] as string)?.split(",")[0] ?? req.ip ?? "";
+      const userAgent = req.headers["user-agent"] ?? "";
+
+      await Promise.all([
+        notifyUtmify(buildUtmifyPayload({
+          orderId: String(orderId),
+          status: "approved",
+          amountCents,
+          form,
+          cartItems,
+          utmParams: utmParams ?? {},
+          approvedDate: new Date().toISOString().replace("T", " ").slice(0, 19),
+        })),
+        sendTikTokEvent({
+          event: "CompletePayment",
+          eventId: `paid-${orderId}`,
+          value: pixValue,
+          form: { email: form.email, phone: form.phone, firstName: form.firstName, lastName: form.lastName },
+          contents: cartItems.map((item: any) => ({
+            content_id: String(item.id),
+            content_name: item.name,
+            quantity: item.quantity,
+            price: item.currentPrice,
+          })),
+          ip,
+          userAgent,
+        }),
+      ]);
+
       return res.json({ ok: true });
     } catch (err: any) {
-      console.error("[UTMify approve]", err.message);
+      console.error("[approve]", err.message);
       return res.status(500).json({ error: err.message });
     }
   });
