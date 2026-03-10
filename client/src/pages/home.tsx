@@ -836,12 +836,13 @@ function ProductCard({ product, onAddToCart }: { product: typeof PRODUCTS.oferta
       <div className="relative overflow-hidden bg-[#FFEDF4] aspect-square">
         {"kitImages" in product && product.kitImages ? (
           <div className="w-full h-full flex items-end justify-center gap-1 px-2 pb-2 group-hover:scale-105 transition-transform duration-500">
-            <img src={product.kitImages[0]} alt="Hair" className="w-[30%] object-contain drop-shadow-lg" style={{ transform: "rotate(-6deg)", marginBottom: "4%" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-            <img src={product.kitImages[1]} alt="ACV" className="w-[36%] object-contain drop-shadow-xl" style={{ marginBottom: "0%" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-            <img src={product.kitImages[2]} alt="Night" className="w-[30%] object-contain drop-shadow-lg" style={{ transform: "rotate(6deg)", marginBottom: "4%" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+            <img loading="lazy" src={product.kitImages[0]} alt="Hair" className="w-[30%] object-contain drop-shadow-lg" style={{ transform: "rotate(-6deg)", marginBottom: "4%" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+            <img loading="lazy" src={product.kitImages[1]} alt="ACV" className="w-[36%] object-contain drop-shadow-xl" style={{ marginBottom: "0%" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+            <img loading="lazy" src={product.kitImages[2]} alt="Night" className="w-[30%] object-contain drop-shadow-lg" style={{ transform: "rotate(6deg)", marginBottom: "4%" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
           </div>
         ) : (
           <img
+            loading="lazy"
             src={product.image}
             alt={product.name}
             className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500"
@@ -906,12 +907,13 @@ function BestSellerCard({ product, onAddToCart }: { product: typeof BEST_SELLERS
       <div className="relative overflow-hidden bg-[#FFEDF4] aspect-square">
         {"kitImages" in product && product.kitImages ? (
           <div className="w-full h-full flex items-end justify-center gap-1 px-2 pb-2 group-hover:scale-105 transition-transform duration-500">
-            <img src={product.kitImages[0]} alt="Hair" className="w-[30%] object-contain drop-shadow-lg" style={{ transform: "rotate(-6deg)", marginBottom: "4%" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-            <img src={product.kitImages[1]} alt="ACV" className="w-[36%] object-contain drop-shadow-xl" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-            <img src={product.kitImages[2]} alt="Night" className="w-[30%] object-contain drop-shadow-lg" style={{ transform: "rotate(6deg)", marginBottom: "4%" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+            <img loading="lazy" src={product.kitImages[0]} alt="Hair" className="w-[30%] object-contain drop-shadow-lg" style={{ transform: "rotate(-6deg)", marginBottom: "4%" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+            <img loading="lazy" src={product.kitImages[1]} alt="ACV" className="w-[36%] object-contain drop-shadow-xl" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+            <img loading="lazy" src={product.kitImages[2]} alt="Night" className="w-[30%] object-contain drop-shadow-lg" style={{ transform: "rotate(6deg)", marginBottom: "4%" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
           </div>
         ) : (
           <img
+            loading="lazy"
             src={product.image}
             alt={product.name}
             className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500"
