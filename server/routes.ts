@@ -2,6 +2,7 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { createPixTransaction, getTransaction } from "./korepay";
+import { notifyUtmify, buildUtmifyPayload } from "./utmify";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -10,7 +11,7 @@ export async function registerRoutes(
 
   app.post("/api/pix/create", async (req: Request, res: Response) => {
     try {
-      const { form, cartItems, shippingCost, total } = req.body;
+      const { form, cartItems, shippingCost, total, utmParams } = req.body;
 
       if (!cartItems || cartItems.length === 0) {
         return res.status(400).json({ error: "Carrinho vazio" });
@@ -65,8 +66,20 @@ export async function registerRoutes(
         },
       });
 
+      const transactionId = result?.id ?? result?.data?.id;
+
+      // Notify UTMify — waiting_payment
+      notifyUtmify(buildUtmifyPayload({
+        orderId: String(transactionId),
+        status: "waiting_payment",
+        amountCents,
+        form,
+        cartItems,
+        utmParams: utmParams ?? {},
+      }));
+
       return res.json({
-        id: result?.id ?? result?.data?.id,
+        id: transactionId,
         qrcode: result?.pix?.qrcode ?? result?.data?.pix?.qrcode,
         status: result?.status ?? result?.data?.status,
         amount: amountCents,
@@ -84,6 +97,26 @@ export async function registerRoutes(
       return res.json({ status: data?.status, id: data?.id });
     } catch (err: any) {
       console.error("[KorePay status]", err.message);
+      return res.status(500).json({ error: err.message });
+    }
+  });
+
+  // Called by frontend when polling detects payment approved
+  app.post("/api/utmify/approve", async (req: Request, res: Response) => {
+    try {
+      const { orderId, form, cartItems, amountCents, utmParams } = req.body;
+      await notifyUtmify(buildUtmifyPayload({
+        orderId: String(orderId),
+        status: "approved",
+        amountCents,
+        form,
+        cartItems,
+        utmParams: utmParams ?? {},
+        approvedDate: new Date().toISOString().replace("T", " ").slice(0, 19),
+      }));
+      return res.json({ ok: true });
+    } catch (err: any) {
+      console.error("[UTMify approve]", err.message);
       return res.status(500).json({ error: err.message });
     }
   });

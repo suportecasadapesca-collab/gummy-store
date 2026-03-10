@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import logoImg from "/logo.png";
 import { pixelInitiateCheckout, pixelPurchase } from "@/lib/pixel";
+import { getUtmParams } from "@/lib/utmify";
 import { ChevronRight, Lock, Tag, QrCode, ChevronDown, ChevronUp, Check, Copy, Loader2, AlertCircle } from "lucide-react";
 
 type CartItem = {
@@ -156,7 +157,19 @@ export default function Checkout() {
         if (data.status) setPixStatus(data.status);
         if (PAID_STATUSES.includes(data.status)) {
           clearInterval(pollRef.current!);
-          pixelPurchase({ value: cartItems.reduce((s, i) => s + i.currentPrice * i.quantity, 0) * 0.95 });
+          const pixValue = cartItems.reduce((s, i) => s + i.currentPrice * i.quantity, 0) * 0.95;
+          pixelPurchase({ value: pixValue });
+          fetch("/api/utmify/approve", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              orderId: pixTransactionId,
+              form,
+              cartItems,
+              amountCents: Math.round(pixValue * 100),
+              utmParams: getUtmParams(),
+            }),
+          }).catch(() => {});
           setTimeout(() => {
             setOrderPlaced(true);
             localStorage.removeItem("gummy_cart");
@@ -253,10 +266,11 @@ export default function Checkout() {
     setPixLoading(true);
     setPixError("");
     try {
+      const utmParams = getUtmParams();
       const res = await fetch("/api/pix/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ form, cartItems, shippingCost, total }),
+        body: JSON.stringify({ form, cartItems, shippingCost, total, utmParams }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Erro ao gerar PIX");

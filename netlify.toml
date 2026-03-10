@@ -25,6 +25,12 @@
   force  = true
 
 [[redirects]]
+  from   = "/api/utmify/approve"
+  to     = "/.netlify/functions/utmify-approve"
+  status = 200
+  force  = true
+
+[[redirects]]
   from   = "/*"
   to     = "/index.html"
   status = 200
