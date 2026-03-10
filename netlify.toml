@@ -1,0 +1,30 @@
+[build]
+  command   = "npm run build"
+  publish   = "dist/public"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[redirects]]
+  from   = "/api/pix/create"
+  to     = "/.netlify/functions/pix-create"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/api/pix/status/:id"
+  to     = "/.netlify/functions/pix-status?id=:id"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/api/pix/webhook"
+  to     = "/.netlify/functions/pix-webhook"
+  status = 200
+  force  = true
+
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
