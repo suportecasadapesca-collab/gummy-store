@@ -13,7 +13,7 @@ type CartItem = {
   quantity: number;
 };
 
-const FREE_SHIPPING_THRESHOLD = 199;
+const FREE_SHIPPING_THRESHOLD = 50;
 
 const UPSELL_PRODUCT = {
   id: 9,
@@ -1044,7 +1044,7 @@ export default function Home() {
         className="text-white text-center py-1.5 sm:py-2 text-[11px] sm:text-sm font-semibold tracking-wide px-2"
         style={{ backgroundColor: "#E31C79" }}
       >
-        FRETE GRÁTIS PARA TODO BRASIL A PARTIR DE R$199 🚚
+        FRETE GRÁTIS PARA TODO BRASIL A PARTIR DE R$50 🚚
       </div>
 
       {/* Navbar */}
@@ -1274,7 +1274,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-3 sm:px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             {[
-              { icon: <Truck size={22} />, title: "Frete Grátis", desc: "A partir de R$199" },
+              { icon: <Truck size={22} />, title: "Frete Grátis", desc: "A partir de R$50" },
               { icon: <Shield size={22} />, title: "Compra Segura", desc: "Pagamento protegido" },
               { icon: <Award size={22} />, title: "Qualidade Premium", desc: "Vitaminas certificadas" },
               { icon: <Star size={22} />, title: "Melhor Avaliada", desc: "4.9/5 estrelas" },
